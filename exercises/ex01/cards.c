@@ -1,14 +1,14 @@
 /*
  * Program to evaluate face values of user inputted card names.
  * Author: Cassandra Overney
+ * Released under the Vegas Public License.
+ * (c)2019 The Olin College Snackjack Team.
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 
 /* Prompts the user for input and puts the reply in the card_name string.
-
-  QUESTION: what does it mean by buffer?!
 
    User input is truncated to the first two characters (not including \0).
 
@@ -18,6 +18,11 @@
 void get_card_name(char *prompt, char *card_name){
   puts(prompt);
   fgets(card_name,3,stdin); /*fgets is updated version of scanf*/
+
+  /*For inputs more than one character, might need to clear input buffer*/
+  if(card_name[1] != '\n'){
+    while ((getchar()) != '\n');
+  }
 }
 
 /* Computes the value based on card_name and updates the count
@@ -43,6 +48,8 @@ void update_count(char *card_name, int *count){
     case 'A':
       val = 11;
       break;
+    case 'X':
+      return;
     default:
       val = atoi(card_name);
       if ((val < 1) || (val > 10)) {
@@ -50,12 +57,13 @@ void update_count(char *card_name, int *count){
         return;
       }
   }
-
+  /* Calculate count from val*/
   if ((val > 2) && (val < 7)) {
     (*count)++;
   } else if (val == 10) {
     (*count)--;
   }
+  printf("Current count: %i\n", *count);
 }
 
 /* Main function that gets the card_name and then uses it to update the count
@@ -68,14 +76,11 @@ void update_count(char *card_name, int *count){
 int main() {
   char card_name[3];
   int count = 0;
-  while (card_name[0] != 'X') {
+  do {
     char *prompt = "Enter the card_name: ";
     get_card_name(prompt, card_name);
-    if (card_name[0] == 'X') {
-      break;
-    }
     update_count(card_name, &count);
-    printf("Current count: %i\n", count);
-  }
+  } while(card_name[0] != 'X');
+
   return 0;
 }
