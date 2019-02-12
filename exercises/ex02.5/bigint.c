@@ -17,6 +17,8 @@ Follow these steps to get this program working:
 
 6) Uncomment the last test in main.  If your three previous tests pass, this one should, too.
 
+Modified by Cassandra Overney
+
 */
 
 #include <stdio.h>
@@ -29,25 +31,30 @@ Follow these steps to get this program working:
 
 It is the caller's responsibility to free the result.
 
-QUESTION: ask about stack diagram
+QUESTION: ask about stack diagram?
+ANSWER: the stack doesn't actually disappear. If no further functions
+called, then data will still be there.
 
 s: string
 returns: string
 */
 char *reverse_string(char *s) {
+    char *reverse;
     size_t len = strlen(s);
     int i = 0;
-    char temp_reverse[len];
+    /* Dynamically allocate space for reversed string
+    the plus one if for the null terminator*/
+    reverse = (char *) malloc(len+1);
+    /* Create a pointer that points to the last character*/
     char *t = s + len - 1;
     while (t >= s) {
-      temp_reverse[i] = *t;
+      /* Since reverse's pointee is dynamically allocated, we can read/write it
+      and return a pointer to it.*/
+      reverse[i] = *t;
       i++;
       t--;
     }
-    //printf("%c\n", *s );
-    s = temp_reverse;
-    //printf("%c\n", *s);
-    return s;
+    return reverse;
 }
 
 /* ctoi: Converts a character to integer.
@@ -66,8 +73,9 @@ i: integer 0 to 9
 returns: character '0' to '9'
 */
 char itoc(int i) {
+    /* Make sure i is between 0 to 9*/
     assert(i >= 0 && i <= 9);
-    // i tells how much offset from the '0' character
+    /* i tells how much offset from the '0' character*/
     return i + '0';
 }
 
@@ -84,15 +92,15 @@ carry: pointer to char
 
 */
 void add_digits(char a, char b, char c, char *total, char *carry) {
-    // printf("%c\n", a);
-    // printf("%c\n", b);
-    // printf("%c\n", c);
+    /* First convert a, b, and carry to integers*/
     int a_num = ctoi(a);
     int b_num = ctoi(b);
     int c_num = ctoi(c);
+    /* Find the sum and calculate the tens and ones place*/
     int sum = a_num + b_num + c_num;
     int temp_total = sum%10;
     int temp_carry = sum/10;
+    /*Set total and carry pointees' values accordingly*/
     *total = itoc(temp_total);
     *carry = itoc(temp_carry);
 }
@@ -125,25 +133,14 @@ void add_bigint(BigInt x, BigInt y, char carry_in, BigInt z) {
     if (*x == '\0') {
         a = '0';
         dx = 0;
-        puts("here1");
     }else{
-        puts("here2");
         a = *x;
-        printf("%d\n", a);
-        if (!isdigit(a)) {
-          a = '0';
-        }
-        //printf("%d\n", a);
     }
     if (*y == '\0') {
         b = '0';
         dy = 0;
     }else{
         b = *y;
-        printf("%d\n", b);
-        if (!isdigit(b)) {
-          b = '0';
-        }
     }
 
     //printf("%c %c %c\n", a, b, carry_in);
@@ -234,9 +231,9 @@ void test_add_bigint() {
 
 int main (int argc, char *argv[])
 {
-    //test_reverse_string();
-    // test_itoc();
-    // test_add_digits();
+    test_reverse_string();
+    test_itoc();
+    test_add_digits();
 
     //TODO: When you have the first three functions working,
     //      uncomment the following, and it should work.

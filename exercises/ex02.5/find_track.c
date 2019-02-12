@@ -1,5 +1,7 @@
 /* Example code for Exercises in C.
 
+Given keyword, print out possible tracks.
+
 Modified version of an example from Chapter 2.5 of Head First C.
 Further modified by Cassandra Overney
 
@@ -88,6 +90,13 @@ void rstrip(char s[])
     }
 }
 
+/* Test find_track_regex
+    With input [A-F], I got the following output:
+      Track 1: 'Freddie Freeloader'
+      Track 2: 'Blue in Green'
+      Track 3: 'All Blues'
+      Track 4: 'Flamenco Sketches'
+*/
 int main (int argc, char *argv[])
 {
     char search_for[80];
