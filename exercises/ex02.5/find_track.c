@@ -1,12 +1,14 @@
 /* Example code for Exercises in C.
 
 Modified version of an example from Chapter 2.5 of Head First C.
+Further modified by Cassandra Overney
 
 */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <regex.h>
 
 #define NUM_TRACKS 5
 
@@ -32,12 +34,49 @@ void find_track(char search_for[])
     }
 }
 
-// Finds all tracks that match the given pattern.
-//
-// Prints track number and title.
+/* Finds all tracks that match the given pattern.
+
+    Prints track number and title.
+
+    pattern: user input, supposedly in regex form
+*/
 void find_track_regex(char pattern[])
 {
-    // TODO: fill this in
+    regex_t pattern_regex;
+    int result;
+    int i;
+    /* Variable for possible error messages*/
+    char msgbuf[100];
+
+    /* Compile regular expression*/
+    result = regcomp(&pattern_regex, pattern, REG_EXTENDED);
+    if (result) {
+    /* If result isn't 0, then compilation failed*/
+      fprintf(stderr, "Could not compile regex.\n");
+      exit(EXIT_FAILURE);
+    }
+
+    /* Actually compare regular expression with each track name*/
+    for (i=0; i<NUM_TRACKS; i++) {
+        /* Compared regex with each track*/
+        result = regexec(&pattern_regex, tracks[i], 0, NULL, 0);
+        /* If return is 0, then found a match and print track*/
+        if (!result) {
+          printf("Track %i: '%s'\n", i, tracks[i]);
+        }
+        /* If return is REG_NOMATCH, then just continue to the next track*/
+        else if (result == REG_NOMATCH) {
+          continue;
+        }
+        /* Else there is an error and print it*/
+        else{
+          regerror(result, &pattern_regex, msgbuf, sizeof(msgbuf));
+          fprintf(stderr, "Regex match failed: %s\n", msgbuf);
+          exit(EXIT_FAILURE);
+        }
+    }
+    /* Frees any memory allocated by regcomp() */
+    regfree(&pattern_regex);
 }
 
 // Truncates the string at the first newline, if there is one.
@@ -58,8 +97,8 @@ int main (int argc, char *argv[])
     fgets(search_for, 80, stdin);
     rstrip(search_for);
 
-    find_track(search_for);
-    //find_track_regex(search_for);
+    //find_track(search_for);
+    find_track_regex(search_for);
 
     return 0;
 }

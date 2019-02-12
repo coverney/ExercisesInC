@@ -29,12 +29,25 @@ Follow these steps to get this program working:
 
 It is the caller's responsibility to free the result.
 
+QUESTION: ask about stack diagram
+
 s: string
 returns: string
 */
 char *reverse_string(char *s) {
-    //TODO: Fill this in.
-    return "";
+    size_t len = strlen(s);
+    int i = 0;
+    char temp_reverse[len];
+    char *t = s + len - 1;
+    while (t >= s) {
+      temp_reverse[i] = *t;
+      i++;
+      t--;
+    }
+    //printf("%c\n", *s );
+    s = temp_reverse;
+    //printf("%c\n", *s);
+    return s;
 }
 
 /* ctoi: Converts a character to integer.
@@ -53,8 +66,9 @@ i: integer 0 to 9
 returns: character '0' to '9'
 */
 char itoc(int i) {
-    //TODO: Fill this in, with an appropriate assertion.
-    return '0';
+    assert(i >= 0 && i <= 9);
+    // i tells how much offset from the '0' character
+    return i + '0';
 }
 
 /* add_digits: Adds two decimal digits, returns the total and carry.
@@ -70,7 +84,17 @@ carry: pointer to char
 
 */
 void add_digits(char a, char b, char c, char *total, char *carry) {
-    //TODO: Fill this in.
+    // printf("%c\n", a);
+    // printf("%c\n", b);
+    // printf("%c\n", c);
+    int a_num = ctoi(a);
+    int b_num = ctoi(b);
+    int c_num = ctoi(c);
+    int sum = a_num + b_num + c_num;
+    int temp_total = sum%10;
+    int temp_carry = sum/10;
+    *total = itoc(temp_total);
+    *carry = itoc(temp_carry);
 }
 
 /* Define a type to represent a BigInt.
@@ -101,19 +125,30 @@ void add_bigint(BigInt x, BigInt y, char carry_in, BigInt z) {
     if (*x == '\0') {
         a = '0';
         dx = 0;
+        puts("here1");
     }else{
+        puts("here2");
         a = *x;
+        printf("%d\n", a);
+        if (!isdigit(a)) {
+          a = '0';
+        }
+        //printf("%d\n", a);
     }
     if (*y == '\0') {
         b = '0';
         dy = 0;
     }else{
         b = *y;
+        printf("%d\n", b);
+        if (!isdigit(b)) {
+          b = '0';
+        }
     }
 
-    // printf("%c %c %c\n", a, b, carry_in);
+    //printf("%c %c %c\n", a, b, carry_in);
     add_digits(a, b, carry_in, &total, &carry_out);
-    // printf("%c %c\n", carry_out, total);
+    //printf("%c %c\n", carry_out, total);
 
     // if total and carry are 0, we're done
     if (total == '0' && carry_out == '0') {
@@ -184,12 +219,12 @@ void test_add_bigint() {
     char *t = "99999999999999999999999999999999999999999999";
     char *res = "000000000000000000000000000000000000000000001";
 
-    BigInt big1 = make_bigint(s);    
+    BigInt big1 = make_bigint(s);
     BigInt big2 = make_bigint(t);
     BigInt big3 = malloc(100);
 
-	add_bigint(big1, big2, '0', big3);
-    
+	  add_bigint(big1, big2, '0', big3);
+
     if (strcmp(big3, res) == 0) {
         printf("add_bigint passed\n");
     } else {
@@ -199,12 +234,12 @@ void test_add_bigint() {
 
 int main (int argc, char *argv[])
 {
-    test_reverse_string();
-    test_itoc();
-    test_add_digits();
+    //test_reverse_string();
+    // test_itoc();
+    // test_add_digits();
 
     //TODO: When you have the first three functions working,
     //      uncomment the following, and it should work.
-    // test_add_bigint();
+    test_add_bigint();
     return 0;
 }
