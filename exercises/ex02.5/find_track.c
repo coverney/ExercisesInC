@@ -51,7 +51,7 @@ void find_track_regex(char pattern[])
     char msgbuf[100];
 
     /* Compile regular expression*/
-    result = regcomp(&pattern_regex, pattern, REG_EXTENDED);
+    result = regcomp(&pattern_regex, pattern, REG_EXTENDED | REG_NOSUB);
     if (result) {
     /* If result isn't 0, then compilation failed*/
       fprintf(stderr, "Could not compile regex.\n");
