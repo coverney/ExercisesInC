@@ -27,7 +27,24 @@ returns: 1 if true, 0 otherwise
 */
 int endswith(char *s, char *suffix)
 {
-    // TODO: Fill this in!
+    // most concise way: strcmp(strstr(s, suffix), suffix)
+    char *pos;
+    // first see if suffix is in s
+    pos = strstr(s, suffix);
+    if (pos) {
+      int len = strlen(s);
+      int len2 = strlen(suffix);
+      // get last n characters with n being length of suffix
+      char *last_n = &s[len-len2];
+      // if last n characters same as suffix return 1
+      if (strcmp(last_n, suffix)==0) {
+        return 1;
+      }
+      // else return 0
+      else{
+        return 0;
+      }
+    }
     return 0;
 }
 
@@ -47,7 +64,7 @@ int main (int argc, char *argv[])
     test_endswith("endswith", "offendswith", 0);
 
     // what's the right answer?
-    // test_endswith("endswith", "", ?);
+    test_endswith("endswith", "", 1);
 
     printf("All tests passed\n");
 }

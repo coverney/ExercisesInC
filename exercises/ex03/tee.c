@@ -1,6 +1,19 @@
 /*
  * Small tool that emulates the UNIX tee command which reads from
-   standard input and writes to standard output and other inputted files
+ * standard input and writes to standard output and other inputted files
+ *
+ * I set test1.txt as my stdin and stdout and test2.txt as my outputs.
+ *
+ * Reflection: The problem decomposition method really helped me. I was able to
+ * break up the problem into several components including (1) read in command
+ * line options and arguments, (2) check for -a, (3) read in stdin, (4) write
+ * to stdout. It took me a while to understand the question. Next time, I would
+ * also spend less time googling things. I did google: how to use fgets to read
+ * stdin line by line and how to re-write/ append to a file.
+ *
+ * Comparison: the professional implementation looks alot more complicated. It
+ * uses malloc and does more error checking. There are also warnings, which I
+ * don't have.
  *
  * Author: Cassandra Overney
  * Released under the EasyTee Inc.
