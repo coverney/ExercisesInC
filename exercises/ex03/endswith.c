@@ -65,6 +65,8 @@ int main (int argc, char *argv[])
 
     // what's the right answer?
     test_endswith("endswith", "", 1);
+    // I got 1 since I took differences, but would have gotten 0 if I used
+    // another approach
 
     printf("All tests passed\n");
 }
