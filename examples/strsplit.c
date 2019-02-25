@@ -68,7 +68,7 @@ void strsplit5(char *string, char sep, char *first, char *second) {
 void strsplit6(char *string, char sep, char *first, char *second) {
     char *copy = strdup(string);
     char *sep_ptr = strchr(copy, sep);
-    *copy = '\0';
+    *sep_ptr = '\0';
 
     // to see what's wrong with the following,
     first = copy;
