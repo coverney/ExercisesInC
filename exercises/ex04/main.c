@@ -1,12 +1,27 @@
+/* main contains the main function originally within trout.c
+
+ * Author: Cassandra Overney
+ * Released under the Main Inc.
+
+*/
+
 #include "trout.h"
 
 Sockaddr *sasend;    /* socket addresses for various purposes */
 Sockaddr *sarecv;
 Sockaddr *salast;
 Sockaddr *sabind;
-//
+
 socklen_t salen;
 
+/*
+  Since I didn't write this function, I am not really sure what it does.
+  I know that is sets a few global variables that are used a lot in trout.c
+
+  argc: number of command line arguments
+  argv: array of strings consisting of command line arguments
+  Return: 0 if no error and 1 if errored
+*/
 int main (int argc, char **argv)
 {
   int c;
