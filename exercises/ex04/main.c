@@ -14,6 +14,9 @@ Sockaddr *sabind;
 
 socklen_t salen;
 
+int datalen;
+int max_ttl;
+
 /*
   Since I didn't write this function, I am not really sure what it does.
   I know that is sets a few global variables that are used a lot in trout.c
