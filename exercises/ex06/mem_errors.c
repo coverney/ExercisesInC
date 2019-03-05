@@ -21,7 +21,7 @@ int read_element(int *array, int index) {
 
 int main()
 {
-    int never_allocated;
+    //int never_allocated;
     int *free_twice = malloc(sizeof (int));
     int *use_after_free = malloc(sizeof (int));
     int *never_free = malloc(sizeof (int));
@@ -33,24 +33,28 @@ int main()
     read_element(array1, 100);
 
     // but it does bounds-check dynamic arrays
-    read_element(array2, -1);
-    read_element(array2, 100);
+    read_element(array2, 0);
+    read_element(array2, 99);
 
     // and it catches use after free
-    free(use_after_free);
+
     *use_after_free = 17;
+    free(use_after_free);
 
     // never_free is definitely lost
     *never_free = 17;
+    free(never_free);
+
+    free(array2);
 
     // the following line would generate a warning
     // free(&never_allocated);
 
     // but this one doesn't
-    free_anything(&never_allocated);
+    //free_anything(&never_allocated);
 
     free(free_twice);
-    free(free_twice);
+    // free(free_twice);
 
     return 0;
 }

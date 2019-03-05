@@ -1,3 +1,7 @@
+/*
+  Generates 10000 random doubles. Used to pipe to CDF plotting function
+  Resulting CDF can be seen in test3_output.png
+*/
 #include <stdio.h>
 #include <stdlib.h>
 

@@ -2,13 +2,17 @@
 
 Copyright 2016 Allen B. Downey
 License: MIT License https://opensource.org/licenses/MIT
-
-my_random_double() is written by Cassandra Overney after much crying
 */
 
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
+
+
+typedef union box{
+  double d;
+  int64_t i;
+} Box;
 
 // generate a random float using the algorithm described
 // at http://allendowney.com/research/rand
@@ -82,10 +86,11 @@ float my_random_float2()
 // compute a random double using my algorithm
 double my_random_double()
 {
-  // Create 64 bit integers since double is 64 bit
   int64_t x;
   int64_t mant;
-  int64_t exp = 1022; // binary: 01111111110
+  //int exp = 126;
+  // long int exp = 1022;
+  int64_t exp = 1022;
   int64_t mask = 1;
 
   union {
@@ -95,11 +100,9 @@ double my_random_double()
 
   // generate random bits until we see the ffirst set bit
   while (1) {
-      // each random() gives a 32 bit result, so to generate 64 random bits
-      // need to call random(), shift to the left by 32 bits and then call
-      // random() again. The | is for setting the last 32 bits of x.
+      //x = random();
       x = (random() << 32) | random();
-      if (x == 0) { //coin toss to move to the left of the fulcrum
+      if (x == 0) {
           exp -= 31;
       } else {
           break;
@@ -113,13 +116,88 @@ double my_random_double()
   }
 
   // use the remaining bit as the mantissa
-  // mantissa is also known as the coefficient and is found by removing the
-  // 11 bits of the exponent and taking whatever is left in x
-  mant = x >> 11;
-  // create the 64 bit integer of b by shifting the exponent to the left by
-  // 52 bits and then combining it with the mantissa
+  mant = x >> 11; //mant should be 52
   b.i = (exp << 52) | mant;
   return b.d;
+}
+
+int get_bit(){
+  int bit;
+  static int bits = 0;
+  static int x;
+
+  if (bits == 0) {
+    x = random();
+    bits = 31;
+  }
+
+  // if (bits == 31){
+  //   x = random();
+  // }
+
+  bit = x & 1;
+  x = x >> 1;
+  bits--;
+  return bit;
+}
+
+// compute a random double using my algorithm
+double my_random_double2()
+{
+  int x;
+  int64_t mant, exp, high_exp, low_exp;
+  Box low, high, ans;
+  low.d = 0.0;
+  high.d = 1.0;
+  low_exp = (low.i >> 52) & 0x7FF;
+  high_exp = (high.i >> 52) & 0x7FF;
+  for(exp = high_exp-1; exp > low_exp; exp--){
+    if (get_bit()) {
+      break;
+    }
+  }
+
+  mant = (random()<< 31) | random();
+
+  //printf("%li\n", mant);
+
+  mant = mant & 0xFFFFFFFFFFFFF; // find way to choose 52 bits
+  //printf("%li\n", mant);
+  if (mant == 0 && get_bit()) {
+    exp++;
+  }
+
+  ans.i = (exp << 52) | mant;
+
+  //printf("%li\n", ans.i);
+
+  return ans.d;
+}
+
+double my_random_double3()
+{
+  int64_t mant, exp, mant_mask, one, sign;
+  one = 1;
+  Box ref, ans;
+  ref.d = 0.75;
+
+  sign = (ref.i >> 63) & 1;
+
+  exp = (ref.i >> 52) & 0x7FF;
+  //exp = exp ^ 1;
+
+  mant_mask = (one << 52) - 1;
+  mant = ref.i & mant_mask;
+
+  printf("%d\n", sign );
+  printf("%d\n", exp );
+  printf("%0x%x\n", mant );
+
+  ans.i = (exp << 52) | mant;
+
+  //printf("%li\n", ans.i);
+
+  return ans.d;
 }
 
 // return a constant (this is a dummy function for time trials)
@@ -155,7 +233,7 @@ float random_float()
 
 
 // generate a random double using the standard algorithm
-double random_double()
+float random_double()
 {
     int x;
     double f;

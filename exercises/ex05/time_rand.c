@@ -13,6 +13,13 @@ Results:
 
 The fastest random number generator is dummy2 (dummy just returns a constant)
 and then random_float
+
+Results from random double:
+2154.936000 ms 	 my_random_double
+766.761000 ms 	 random_double
+
+random_double is almost three times faster than my_random_double
+
 */
 
 #include <stdio.h>
@@ -45,9 +52,30 @@ double get_seconds() {
 /* Compute the total time used by a function.
 
 iters: number of times to call the function
-func: function to call
+func: function to call (funcs that return floats)
 */
 double time_func(int iters, float(*func)())
+{
+    int i;
+    float f;
+    double t0, t1;
+
+    srandom(time(NULL));
+
+    t0 = get_seconds();
+    for (i=0; i<iters; i++) {
+        f = func();
+    }
+    t1 = get_seconds();
+    return t1 - t0;
+}
+
+/* Compute the total time used by double functions.
+
+iters: number of times to call the function
+func: function to call (funcs that return doubles)
+*/
+double time_func2(int iters, double(*func)())
 {
     int i;
     float f;
@@ -87,4 +115,10 @@ int main(int argc, char *argv[])
 
     time = time_func(iters, random_float);
     printf("%f ms \t random_float\n", time);
+
+    time = time_func2(iters, my_random_double);
+    printf("%f ms \t my_random_double\n", time);
+
+    time = time_func2(iters, random_double);
+    printf("%f ms \t random_double\n", time);
 }

@@ -2,6 +2,10 @@
 
 Modified version of an example from Chapter 2.5 of Head First C.
 
+Filled in by Cassandra Overney
+
+This basically breaks up find_track_regex() into three smaller functions.
+
 */
 
 #include <stdio.h>
@@ -30,6 +34,7 @@ typedef regex_t Regex;
 * returns: new Regex
 */
 Regex *make_regex(char *pattern, int flags) {
+    // need to malloc to prevent segmentation fault!!
     Regex* regex = (Regex*) malloc(sizeof(Regex));
     int ret;
     ret = regcomp(regex, pattern, flags);
@@ -37,6 +42,7 @@ Regex *make_regex(char *pattern, int flags) {
         fprintf(stderr, "Could not compile regex\n");
         exit(1);
     }
+    // return pointer to regex variable stored in heap
     return regex;
 }
 
@@ -51,9 +57,10 @@ int regex_match(Regex *regex, char *s) {
     int ret;
     ret = regexec(regex, s, 0, NULL, 0);
     if (!ret) {
+      // 0 means there is a match
       return 1;
     }
-    else{
+    else {
       return 0;
     }
 }
@@ -63,6 +70,7 @@ int regex_match(Regex *regex, char *s) {
 * regex: Regex pointer
 */
 void regex_free(Regex *regex) {
+    // free the regex variable in the heap to prevent a memory leak
     free(regex);
 }
 
