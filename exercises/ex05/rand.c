@@ -5,6 +5,14 @@ License: MIT License https://opensource.org/licenses/MIT
 */
 
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdio.h>
+
+
+typedef union box{
+  double d;
+  int64_t i;
+} Box;
 
 // generate a random float using the algorithm described
 // at http://allendowney.com/research/rand
@@ -78,7 +86,93 @@ float my_random_float2()
 // compute a random double using my algorithm
 double my_random_double()
 {
-    // TODO: fill this in
+  int x;
+  int64_t mant;
+  //int exp = 126;
+  // long int exp = 1022;
+  int64_t exp = 1022;
+  int64_t mask = 1;
+
+  union {
+      double d;
+      int64_t i;
+  } b;
+
+  // generate random bits until we see the first set bit
+  while (1) {
+      //x = random();
+      x = (random() << 32) | random();
+      if (x == 0) {
+          exp -= 62;
+      } else {
+          break;
+      }
+  }
+
+  // find the location of the first set bit and compute the exponent
+  while (x & mask) {
+      mask <<= 1;
+      exp--;
+  }
+
+  // use the remaining bit as the mantissa
+  mant = x >> 11; //mant should be 52
+  b.i = (exp << 52) | mant;
+
+  return b.d;
+}
+
+int get_bit(){
+  int bit;
+  static int bits = 0;
+  static int x;
+
+  if (bits == 0) {
+    x = random();
+    bits = 31;
+  }
+
+  // if (bits == 31){
+  //   x = random();
+  // }
+
+  bit = x & 1;
+  x = x >> 1;
+  bits--;
+  return bit;
+}
+
+// compute a random double using my algorithm
+double my_random_double2()
+{
+  int x;
+  int64_t mant, exp, high_exp, low_exp;
+  Box low, high, ans;
+  low.d = 0.0;
+  high.d = 1.0;
+  low_exp = (low.i >> 53) & 0x7FF;
+  high_exp = (high.i >> 53) & 0x7FF;
+  for(exp = high_exp-1; exp > low_exp; exp--){
+    if (get_bit()) {
+      break;
+    }
+  }
+
+  mant = (random()<< 32) | random();
+
+  //printf("%li\n", mant);
+
+  mant = mant & 0x1FFFFFFFFFFFFF; // find way to choose 53 bits
+  //printf("%li\n", mant);
+  if (mant == 0 && get_bit()) {
+    exp++;
+  }
+
+  ans.i = (exp << 53) | mant;
+
+  //printf("%li\n", ans.i);
+
+  return ans.d;
 }
 
 // return a constant (this is a dummy function for time trials)

@@ -2,6 +2,17 @@
 
 Copyright 2016 Allen B. Downey
 License: MIT License https://opensource.org/licenses/MIT
+
+Results:
+214.375000 ms 	 dummy
+589.632000 ms 	 dummy2
+659.699000 ms 	 random_float
+673.719000 ms 	 my_random_float
+1686.702000 ms 	 my_random_float2
+661.456000 ms 	 random_float
+
+The fastest random number generator is dummy2 (dummy just returns a constant)
+and then random_float
 */
 
 #include <stdio.h>
@@ -53,7 +64,7 @@ double time_func(int iters, float(*func)())
 }
 
 
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     double time;
     int iters = 100000000;
