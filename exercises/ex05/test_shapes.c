@@ -17,6 +17,7 @@ void test_point()
     char *s = point_to_string(point);
     printf("%s\n", s);
     free_point(point);
+    free(s);
 }
 
 void test_rectangle()
@@ -27,6 +28,7 @@ void test_rectangle()
     printf("%s\n", s);
     free_point(corner);
     free_rectangle(rectangle);
+    free(s);
 }
 
 void test_point_in_rect(Point *point, Rectangle *rectangle)
@@ -42,6 +44,9 @@ void test_point_in_rect(Point *point, Rectangle *rectangle)
         res = "is not in";
     }
     printf("%s %s %s\n", p_str, res, r_str);
+
+    free(p_str);
+    free(r_str);
 }
 
 void main (int argc, char *argv[])
@@ -54,12 +59,16 @@ void main (int argc, char *argv[])
     test_point_in_rect(corner, rectangle);
 
     Point *point2 = make_point(9.0, 5.0);
-    printf("%s\n", point_to_string(point2));
-    printf("%s\n", rectangle_to_string(rectangle));
+    char *p_str = point_to_string(point2);
+    printf("%s\n", p_str);
+    char *r_str = rectangle_to_string(rectangle);
+    printf("%s\n", r_str);
 
     test_point_in_rect(point2, rectangle);
 
     free_point(corner);
     free_point(point2);
     free_rectangle(rectangle);
+    free(p_str);
+    free(r_str);
 }
