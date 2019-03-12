@@ -79,6 +79,6 @@ int main() {
     retval = pop(list);
     print_list(list);
 
-    retval = pop(list);
+    retval = pop(list); //seg fault since list is empty (nothing to pop)
     print_list(list);
 }

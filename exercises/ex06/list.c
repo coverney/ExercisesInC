@@ -93,7 +93,7 @@ void push(Node **list, int val) {
 * list: pointer to pointer to Node
 * val: value to remove
 *
-* returns: number of nodes removed
+* returns: value of node removed or -1 if it didn't work
 */
 int remove_by_value(Node **list, int val) {
     // get the first node
@@ -158,6 +158,13 @@ void reverse(Node **list) {
   *list = past;
 }
 
+void free_list(Node **list){
+  int val = pop(list);
+  while(val != -1){
+    val = pop(list);
+  }
+}
+
 
 int main() {
     Node *head = make_node(1, NULL);
@@ -182,4 +189,7 @@ int main() {
 
     reverse(list);
     print_list(list);
+
+    // Have to free rest of list
+    free_list(list);
 }
