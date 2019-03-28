@@ -3,6 +3,15 @@
 Copyright 2016 Allen Downey
 License: Creative Commons Attribution-ShareAlike 3.0
 
+Further edited by Cassandra Overney
+
+NOTE: This implementation, where objects carry around pointers to their
+methods, provides semantics similar to JavaScript objects. The obvious
+disadvantage of this implementation is that all objects with the same type
+contains pointers to the same set of methods. So you can save space by moving
+those pointers into a separate object --- let's call it a "class" --- and
+giving each instance a pointer to its class.
+
 */
 
 #include <stdio.h>
@@ -178,7 +187,11 @@ int hash_hashable(Hashable *hashable)
 */
 int equal_int (void *ip, void *jp)
 {
-    // FILL THIS IN!
+    int i = *(int *)ip;
+    int j = *(int *)jp;
+    if (i==j){
+      return 1;
+    }
     return 0;
 }
 
@@ -192,7 +205,11 @@ int equal_int (void *ip, void *jp)
 */
 int equal_string (void *s1, void *s2)
 {
-    // FILL THIS IN!
+    char *string1 = (char *) s1;
+    char *string2 = (char *) s2;
+    if(strcmp(string1,string2)==0){
+      return 1;
+    }
     return 0;
 }
 
@@ -207,8 +224,7 @@ int equal_string (void *s1, void *s2)
 */
 int equal_hashable(Hashable *h1, Hashable *h2)
 {
-    // FILL THIS IN!
-    return 0;
+    return h1->equal (h1->key, h2->key);
 }
 
 
@@ -296,8 +312,22 @@ Node *prepend(Hashable *key, Value *value, Node *rest)
 /* Looks up a key and returns the corresponding value, or NULL */
 Value *list_lookup(Node *list, Hashable *key)
 {
-    // FILL THIS IN!
-    return NULL;
+    // Base case
+    if (list == NULL) {
+      return NULL;
+    }
+    // Get key of current Node*
+    Hashable *temp_key = list -> key;
+
+    // If keys are equal then return value
+    if(equal_hashable(temp_key, key)){
+      return list -> value;
+    }
+
+    // Else, compare for the next Node*
+    else{
+      return list_lookup(list->next, key);
+    }
 }
 
 
@@ -341,15 +371,42 @@ void print_map(Map *map)
 /* Adds a key-value pair to a map. */
 void map_add(Map *map, Hashable *key, Value *value)
 {
-    // FILL THIS IN!
+    // Find index of map to add to using hash function
+    int hash = hash_hashable(key);
+    int index = hash % map->n;
+
+    // Get Node* from map
+    Node * rest = map->lists[index];
+
+    // If NULL, make a Node
+    if (rest == NULL){
+      map->lists[index] = make_node(key, value, NULL);
+    }
+    // Else, prepend to rest
+    else{
+      map->lists[index] = prepend(key, value, rest);
+    }
 }
 
 
 /* Looks up a key and returns the corresponding value, or NULL. */
 Value *map_lookup(Map *map, Hashable *key)
 {
-    // FILL THIS IN!
-    return NULL;
+    // Find index of map to look through using hash function
+    int hash = hash_hashable(key);
+    int index = hash % map->n;
+
+    // Get Node* from map
+    Node * list = map->lists[index];
+
+    // If NULL, return NULL
+    if(list == NULL){
+      return NULL;
+    }
+    // Else, call list_lookup
+    else{
+      return list_lookup(list, key);
+    }
 }
 
 
