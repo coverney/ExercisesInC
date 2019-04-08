@@ -2,6 +2,12 @@
 
 From http://www.ibm.com/developerworks/linux/tutorials/l-glib/
 
+Run with:
+export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig
+echo $PKG_CONFIG_PATH
+
+gcc -Wall -o ex_compile `pkg-config --cflags glib-2.0` ex_compile.c `pkg-config --libs glib-2.0`
+
 */
 
 #include <stdio.h>
