@@ -11,6 +11,7 @@ gcc -Wall -o word_count `pkg-config --cflags glib-2.0` word_count.c `pkg-config 
 
 OR
 
+make clean
 make
 
 Author: Cassandra Overney
