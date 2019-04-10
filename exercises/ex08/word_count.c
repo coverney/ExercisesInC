@@ -1,5 +1,4 @@
 /*
-
 Reads a text file, splits lines into words, and counts the frequency of each word.
 
 Run with:
@@ -17,6 +16,11 @@ make
 Author: Cassandra Overney
 License: Confused Book Lovers Inc.
 
+1) GLib came from Gnome since they decided it would be better to have a separate
+  library for data structures.
+2) There is not a dominant choice for data structures in C. This is evidence
+  that people are not running application based programs in C.
+3) Reference Makefile and ex_compile.c.
 */
 
 #include <stdio.h>

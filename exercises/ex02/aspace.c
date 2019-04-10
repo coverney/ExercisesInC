@@ -49,7 +49,7 @@ int main ()
     form. That means there are consistently 4 bytes between the two
     memory addresses.
     */
-    srand ( time(NULL) ); // Set random seed
+    srand (time(NULL) ); // Set random seed
     int var4 = (rand() % 32) + 1;
     printf("Random number is %i\n", var4);
     void *m1 = malloc(var4);
