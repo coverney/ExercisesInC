@@ -84,8 +84,8 @@ Parent and child processes don't share some heap segment:
 I am not sure how to test whether the child processes share the same code
   and static segments, because fork makes a copy of the address space, so
   they will have the same addresses. Since the code and static segments are
-  constant, the parent and child processes tecnically share those segments. 
-
+  constant, the parent and child processes tecnically share those segments.
+  I can't use the same method as I did for the heap, stack, and global sections. 
 
 */
 

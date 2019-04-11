@@ -73,6 +73,25 @@ void reduce_matrix_rows(Matrix *matrix, int i, int j) {
     }
 }
 
+int compare_rows(const void* a, const void* b){
+  double *row_a = *((double**) a);
+  double *row_b = *((double**) b);
+  double result = row_b[0] - row_a[0];
+  if (result==0) {
+    return 0;
+  }
+  else if(result > 0){
+    return 1;
+  }
+  else{
+    return -1;
+  }
+}
+
+void sort_matrix_rows(Matrix *matrix){
+  qsort(matrix->rows, matrix->num_rows, sizeof(double*), compare_rows);
+}
+
 int main () {
     Matrix *matrix = make_matrix(3, 4);
     for (int i=0; i<matrix->num_rows; i++) {
@@ -82,9 +101,13 @@ int main () {
     }
 
     print_matrix(matrix);
-    printf("reducing...\n");
-    reduce_matrix_rows(matrix, 1, 0);
-    reduce_matrix_rows(matrix, 2, 0);
+    // printf("reducing...\n");
+    // reduce_matrix_rows(matrix, 1, 0);
+    // reduce_matrix_rows(matrix, 2, 0);
+    // print_matrix(matrix);
+
+    printf("sorting...\n");
+    sort_matrix_rows(matrix);
     print_matrix(matrix);
 
     free_matrix(matrix);
