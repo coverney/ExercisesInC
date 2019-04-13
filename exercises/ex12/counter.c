@@ -3,6 +3,23 @@
 Copyright 2014 Allen Downey
 License: GNU GPLv3
 
+Further edited by Cassandra Overney
+
+Results:
+Address of parent: 0x7ffce50ee184
+counter = 0
+Address of child: 0x7feb7fd69f14
+counter = 1
+Address of child: 0x7feb7f568f14
+counter = 2
+Address of child: 0x7feb7ed67f14
+counter = 3
+Address of child: 0x7feb7e566f14
+counter = 4
+Address of child: 0x7feb7dd65f14
+Final value of counter is 5
+
+
 */
 
 #include <stdio.h>
@@ -74,6 +91,8 @@ void join_thread(pthread_t thread)
 void child_code(Shared *shared)
 {
     printf("counter = %d\n", shared->counter);
+    int i;
+    printf("Address of child: %p\n", &i);
     shared->counter++;
 }
 
@@ -89,6 +108,7 @@ void *entry(void *arg)
 int main()
 {
     int i;
+    printf("Address of parent: %p\n", &i);
     pthread_t child[NUM_CHILDREN];
 
     Shared *shared = make_shared();

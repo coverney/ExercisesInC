@@ -8,6 +8,8 @@ https://raw.githubusercontent.com/twcamper/head-first-c/master/10/math-master.c
 
 Based on an example in Head First C.
 
+Further edited by Cassandra Overney
+
 */
 
 #include <stdio.h>
