@@ -3,6 +3,18 @@
 Copyright 2014 Allen Downey
 License: GNU GPLv3
 
+Run:
+1) make counter_mutex
+2) ./counter_mutex
+
+Results:
+counter = 0
+counter = 1
+counter = 2
+counter = 3
+counter = 4
+Final value of counter is 5
+
 */
 
 #include <stdio.h>

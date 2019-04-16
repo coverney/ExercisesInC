@@ -5,6 +5,15 @@ License: GNU GPLv3
 
 Further edited by Cassandra Overney
 
+Run with:
+1) gcc counter.c -o counter -lpthread
+2) ./counter
+
+OR
+
+1) make counter
+2) ./counter
+
 Results:
 Address of parent: 0x7ffce50ee184
 counter = 0
@@ -17,8 +26,26 @@ counter = 3
 Address of child: 0x7feb7e566f14
 counter = 4
 Address of child: 0x7feb7dd65f14
-Final value of counter is 5
+Final value of counter is 5 (CORRECT!)
 
+The addresses for a local variable in the stack are different between threads,
+which means that the stacks for different threads don't have the same virtual and
+physical memories.
+
+Increasing the number of children:
+counter = 0
+counter = 1
+counter = 0
+counter = 0
+counter = 3
+counter = 2
+counter = 2
+Final value of counter is 7
+
+The fact that 0 is print thrice and 2 is print twice indicates that the threads
+are running concurrently. Concurrent threads can lead to synchronization errors
+in which several threads can read the same value of counter before any of the
+threads increment it. It is interesting how the final count is still correct.
 
 */
 
@@ -26,7 +53,7 @@ Final value of counter is 5
 #include <stdlib.h>
 #include <pthread.h>
 
-#define NUM_CHILDREN 5
+#define NUM_CHILDREN 7
 
 /* Print an error message and exit.
 */
@@ -91,8 +118,8 @@ void join_thread(pthread_t thread)
 void child_code(Shared *shared)
 {
     printf("counter = %d\n", shared->counter);
-    int i;
-    printf("Address of child: %p\n", &i);
+    //int i;
+    //printf("Address of child: %p\n", &i);
     shared->counter++;
 }
 
@@ -108,7 +135,7 @@ void *entry(void *arg)
 int main()
 {
     int i;
-    printf("Address of parent: %p\n", &i);
+    //printf("Address of parent: %p\n", &i);
     pthread_t child[NUM_CHILDREN];
 
     Shared *shared = make_shared();

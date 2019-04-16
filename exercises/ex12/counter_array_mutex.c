@@ -3,6 +3,23 @@
 Copyright 2014 Allen Downey
 License: GNU GPLv3
 
+Run:
+1) make counter_array_mutex
+2) ./counter_array_mutex
+
+Results:
+Checking...
+0 errors. (no more syncronization errors!!)
+
+Time:
+time ./counter_array_mutex
+real	0m0.228s
+user	0m0.235s
+sys	0m0.211s
+
+Syncronization imposes around 0.177 seconds of overhead. It is 4.5 times larger
+than the time without mutual exclusion
+
 */
 
 #include <stdio.h>
@@ -47,6 +64,7 @@ Shared *make_shared(int end)
         shared->array[i] = 0;
     }
 
+    // make mutex to apply mutual exclusion and add to Shared structure
     shared->mutex = make_mutex();
     return shared;
 }
@@ -73,9 +91,10 @@ void join_thread(pthread_t thread)
 
 void child_code(Shared *shared)
 {
-    printf("Starting child at counter %d\n", shared->counter);
+    //printf("Starting child at counter %d\n", shared->counter);
 
     while (1) {
+        // block all other threads
         mutex_lock(shared->mutex);
         if (shared->counter >= shared->end) {
             mutex_unlock(shared->mutex);
@@ -85,9 +104,10 @@ void child_code(Shared *shared)
         shared->array[shared->counter]++;
         shared->counter++;
 
-        if (shared->counter % 10000 == 0) {
-            printf("%d\n", shared->counter);
-        }
+        // if (shared->counter % 10000 == 0) {
+        //     printf("%d\n", shared->counter);
+        // }
+        // unlock other threads
         mutex_unlock(shared->mutex);
     }
 }
@@ -96,7 +116,7 @@ void *entry(void *arg)
 {
     Shared *shared = (Shared *) arg;
     child_code(shared);
-    printf("Child done.\n");
+    //printf("Child done.\n");
     pthread_exit(NULL);
 }
 
@@ -104,12 +124,12 @@ void check_array(Shared *shared)
 {
     int i, errors=0;
 
-    printf("Checking...\n");
+    //printf("Checking...\n");
 
     for (i=0; i<shared->end; i++) {
         if (shared->array[i] != 1) errors++;
     }
-    printf("%d errors.\n", errors);
+    //printf("%d errors.\n", errors);
 }
 
 int main()
