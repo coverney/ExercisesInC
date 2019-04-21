@@ -4,6 +4,8 @@ Modified by Allen Downey.
 
 Further edited by Cassandra Overney
 
+Modified version of ikkp-server so it creates a new thread for each client
+
 */
 
 #include <stdio.h>
@@ -16,6 +18,9 @@ Further edited by Cassandra Overney
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
+#include <pthread.h>
+
+#define NUM_CONNECTIONS 10
 
 int listener_d = 0;
 
@@ -24,6 +29,56 @@ int listener_d = 0;
 void error(char *msg) {
     fprintf(stderr, "%s: %s\n", msg, strerror(errno));
     exit(1);
+}
+
+/* Call malloc and exit if it fails.
+*/
+void *check_malloc(int size)
+{
+    void *p = malloc(size);
+    if (p == NULL) {
+        error("malloc failed");
+    }
+    return p;
+}
+
+/* Structure that contains variables shared between threads.
+*/
+typedef struct {
+    int connect_d;
+} Shared;
+
+/* Allocate the shared structure.
+*/
+Shared *make_shared(int connect)
+{
+    Shared *shared = check_malloc(sizeof(Shared));
+    shared->connect_d = connect;
+    return shared;
+}
+
+/* Create a child thread.
+*/
+pthread_t make_thread(void *(*entry)(void *), Shared *shared)
+{
+    int ret;
+    pthread_t thread;
+
+    ret = pthread_create(&thread, NULL, entry, (void *) shared);
+    if (ret != 0) {
+        error("pthread_create failed");
+    }
+    return thread;
+}
+
+/* Wait for a child thread.
+*/
+void join_thread(pthread_t thread)
+{
+    int ret = pthread_join(thread, NULL);
+    if (ret == -1) {
+        error("pthread_join failed");
+    }
 }
 
 /* Set up the signal catcher.
@@ -135,9 +190,61 @@ int read_in(int socket, char *buf, int len)
 
 char intro_msg[] = "Internet Knock-Knock Protocol Server\nKnock, knock.\n";
 
+/* Code run by the child threads.
+*/
+void protocol(Shared *shared){
+  char buf[255];
+  // in child, close main listener socket
+  // close(listener_d);
+  if (say(shared->connect_d, intro_msg) == -1) {
+      close(shared->connect_d);
+      exit(0);
+  }
+
+  read_in(shared->connect_d, buf, sizeof(buf));
+  // Check to make sure they said "Who's there?"
+   if (strncasecmp("Who's there?", buf, 12)) {
+     say(shared->connect_d, "You should say 'Who's there?'!");
+   }
+   else{
+     if (say(shared->connect_d, "Surrealist giraffe.\n") == -1) {
+         close(shared->connect_d);
+         exit(0);
+     }
+
+     read_in(shared->connect_d, buf, sizeof(buf));
+     // Check to make sure they said "Surrealist giraffe who?"
+     if (strncasecmp("Surrealist giraffe who?", buf, 23)) {
+       say(shared->connect_d, "You should say 'Surrealist giraffe who?'!");
+     }
+
+     else{
+       if (say(shared->connect_d, "Bathtub full of brightly-colored machine tools.\n") == -1) {
+           close(shared->connect_d);
+           exit(0);
+       }
+     }
+   }
+  // once the conversation is over, child can close socket to client
+  close(shared->connect_d);
+}
+
+/* Entry point for the child threads.
+*/
+void *entry(void *arg)
+{
+    Shared *shared = (Shared *) arg;
+    protocol(shared);
+    pthread_exit(NULL);
+}
+
 int main(int argc, char *argv[])
 {
-    char buf[255];
+    //char buf[255];
+
+    // create array of child threads
+    int i = 0;
+    pthread_t child[NUM_CONNECTIONS];
 
     // set up the signal handler
     if (catch_signal(SIGINT, handle_shutdown) == -1)
@@ -151,43 +258,19 @@ int main(int argc, char *argv[])
     if (listen(listener_d, 10) == -1)
         error("Can't listen");
 
-
-
     while (1) {
-        printf("Waiting for connection on port %d\n", port);
-        int connect_d = open_client_socket();
+      printf("Waiting for connection on port %d\n", port);
+      int connect_d = open_client_socket();
 
-        if (say(connect_d, intro_msg) == -1) {
-            close(connect_d);
-            continue;
-        }
+      // create child thread and run protocol
+      Shared *shared = make_shared(connect_d);
 
-        read_in(connect_d, buf, sizeof(buf));
-        // Check to make sure they said "Who's there?"
-         if (strncasecmp("Who's there?", buf, 12)) {
-           say(connect_d, "You should say 'Who's there?'!");
-         }
-         else{
-           if (say(connect_d, "Surrealist giraffe.\n") == -1) {
-               close(connect_d);
-               continue;
-           }
+      child[i] = make_thread(entry, shared);
 
-           read_in(connect_d, buf, sizeof(buf));
-           // Check to make sure they said "Surrealist giraffe who?"
-           if (strncasecmp("Surrealist giraffe who?", buf, 23)) {
-             say(connect_d, "You should say 'Surrealist giraffe who?'!");
-           }
-
-           else{
-             if (say(connect_d, "Bathtub full of brightly-colored machine tools.\n") == -1) {
-                 close(connect_d);
-                 continue;
-             }
-           }
-         }
-
-        close(connect_d);
+      // QUESTION: how do I join the threads at the end?
+      // join_thread(child);
+      //
+      // close(connect_d);
     }
     return 0;
 }

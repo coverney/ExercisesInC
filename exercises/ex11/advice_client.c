@@ -1,9 +1,8 @@
-/* Code from Head First C.
+/*
+Connects to advice server and prints a reply
 
-Note: It looks like Wikipedia might not like the format of this request any
-more, possible because it requires HTTPS.
-
-It didn't work for me.
+Written by Cassandra Overney
+Released under the Bad Advice Inc.
 
 */
 
@@ -60,16 +59,17 @@ int main(int argc, char *argv[])
     char buf[255], rec[256];
 
     /* connect to server */
-    d_sock = open_socket("en.wikipedia.org", "80");
+    d_sock = open_socket("127.0.0.1", "30000");
 
-    /* request the resource */
-    sprintf(buf, "GET /wiki/%s http/1.1\r\n", argv[1]);
-    say(d_sock, buf);
+    // QUESTION: I don't need the GET command and hostname right?
+    // /* request the resource */
+    // sprintf(buf, "GET /wiki/%s http/1.1\r\n", argv[1]);
+    // say(d_sock, buf);
+    //
+    // /* send host name and required blank line */
+    // say(d_sock, "Host: en.wikipedia.org\r\n\r\n");
 
-    /* send host name and required blank line */
-    say(d_sock, "Host: en.wikipedia.org\r\n\r\n");
-
-    /* display page on stdout in 255 byte chunks */
+    /* display advice in 255 byte chunks */
     bytes_received = recv(d_sock, rec, 255, 0);
     while (bytes_received) {
         if (bytes_received == EOF)
@@ -79,6 +79,12 @@ int main(int argc, char *argv[])
         printf("%s", rec);
         bytes_received = recv(d_sock, rec, 255, 0);
     }
+
+    // QUESTION: how to print reply?
+    // print reply
+    //say(d_sock, "Thanks for the bad advice!");
+    printf("%s\n", "Thanks for the bad advice!");
+
     close(d_sock);
 
     return 0;

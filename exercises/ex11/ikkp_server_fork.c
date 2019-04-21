@@ -4,6 +4,8 @@ Modified by Allen Downey.
 
 Further edited by Cassandra Overney
 
+Modified version of ikkp-server so it forks a new process for each client
+
 */
 
 #include <stdio.h>
@@ -157,37 +159,46 @@ int main(int argc, char *argv[])
         printf("Waiting for connection on port %d\n", port);
         int connect_d = open_client_socket();
 
-        if (say(connect_d, intro_msg) == -1) {
-            close(connect_d);
-            continue;
-        }
+        // create child process and run protcol if PID is 0 (child process)
+        if (!fork()) {
+          // in child, close main listener socket
+          close(listener_d);
+          if (say(connect_d, intro_msg) == -1) {
+              close(connect_d);
+              continue;
+          }
 
-        read_in(connect_d, buf, sizeof(buf));
-        // Check to make sure they said "Who's there?"
-         if (strncasecmp("Who's there?", buf, 12)) {
-           say(connect_d, "You should say 'Who's there?'!");
-         }
-         else{
-           if (say(connect_d, "Surrealist giraffe.\n") == -1) {
-               close(connect_d);
-               continue;
+          read_in(connect_d, buf, sizeof(buf));
+          // Check to make sure they said "Who's there?"
+           if (strncasecmp("Who's there?", buf, 12)) {
+             say(connect_d, "You should say 'Who's there?'!");
            }
-
-           read_in(connect_d, buf, sizeof(buf));
-           // Check to make sure they said "Surrealist giraffe who?"
-           if (strncasecmp("Surrealist giraffe who?", buf, 23)) {
-             say(connect_d, "You should say 'Surrealist giraffe who?'!");
-           }
-
            else{
-             if (say(connect_d, "Bathtub full of brightly-colored machine tools.\n") == -1) {
+             if (say(connect_d, "Surrealist giraffe.\n") == -1) {
                  close(connect_d);
                  continue;
              }
-           }
-         }
 
-        close(connect_d);
+             read_in(connect_d, buf, sizeof(buf));
+             // Check to make sure they said "Surrealist giraffe who?"
+             if (strncasecmp("Surrealist giraffe who?", buf, 23)) {
+               say(connect_d, "You should say 'Surrealist giraffe who?'!");
+             }
+
+             else{
+               if (say(connect_d, "Bathtub full of brightly-colored machine tools.\n") == -1) {
+                   close(connect_d);
+                   continue;
+               }
+             }
+           }
+          // once the conversation is over, child can close socket to client
+          close(connect_d);
+          // child should exit to prevent it from falling into main server loop
+          exit(0);
+        }
+
+      close(connect_d);
     }
     return 0;
 }
