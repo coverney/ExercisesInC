@@ -21,12 +21,16 @@ telnet 127.0.0.1 30000
 #include <arpa/inet.h>
 #include <netdb.h>
 
+/* Print error
+*/
 void error(char *msg)
 {
     fprintf(stderr, "%s: %s\n", msg, strerror(errno));
     exit(1);
 }
 
+/* Open socket
+*/
 int open_socket(char *host, char *port)
 {
     struct addrinfo *res;
@@ -49,6 +53,8 @@ int open_socket(char *host, char *port)
     return d_sock;
 }
 
+/* Send message
+*/
 int say(int socket, char *s)
 {
     int result = send(socket, s, strlen(s), 0);
@@ -58,6 +64,8 @@ int say(int socket, char *s)
     return result;
 }
 
+/* Open socket, receive advice and then print reply
+*/
 int main(int argc, char *argv[])
 {
     int d_sock, bytes_received;
