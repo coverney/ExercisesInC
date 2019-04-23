@@ -4,6 +4,11 @@ Connects to advice server and prints a reply
 Written by Cassandra Overney
 Released under the Bad Advice Inc.
 
+gcc advice_client.c -o advice_client
+
+./advice_client
+telnet 127.0.0.1 30000
+
 */
 
 #include <stdio.h>
@@ -61,7 +66,7 @@ int main(int argc, char *argv[])
     /* connect to server */
     d_sock = open_socket("127.0.0.1", "30000");
 
-    // QUESTION: I don't need the GET command and hostname right?
+    // QUESTION: I don't need the GET command and hostname right? No
     // /* request the resource */
     // sprintf(buf, "GET /wiki/%s http/1.1\r\n", argv[1]);
     // say(d_sock, buf);
@@ -80,9 +85,7 @@ int main(int argc, char *argv[])
         bytes_received = recv(d_sock, rec, 255, 0);
     }
 
-    // QUESTION: how to print reply?
     // print reply
-    //say(d_sock, "Thanks for the bad advice!");
     printf("%s\n", "Thanks for the bad advice!");
 
     close(d_sock);

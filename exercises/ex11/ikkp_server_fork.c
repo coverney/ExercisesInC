@@ -6,6 +6,14 @@ Further edited by Cassandra Overney
 
 Modified version of ikkp-server so it forks a new process for each client
 
+gcc ikkp_server_fork.c -o ikkp_server_fork
+
+./ikkp_server_fork
+telnet 127.0.0.1 30000
+
+When there is a segmentation fault in the child process, only the client crashes.
+The server is still up and running.
+
 */
 
 #include <stdio.h>
@@ -167,6 +175,13 @@ int main(int argc, char *argv[])
               close(connect_d);
               continue;
           }
+
+          // Cause segmentation fault by accessing null pointer
+          // char * null_ptr = NULL;
+          // if (say(connect_d, null_ptr) == -1) {
+          //     close(connect_d);
+          //     exit(0);
+          // }
 
           read_in(connect_d, buf, sizeof(buf));
           // Check to make sure they said "Who's there?"

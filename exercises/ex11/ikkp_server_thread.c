@@ -6,6 +6,14 @@ Further edited by Cassandra Overney
 
 Modified version of ikkp-server so it creates a new thread for each client
 
+gcc ikkp_server_thread.c -o ikkp_server_thread -lpthread
+
+./ikkp_server_thread
+telnet 127.0.0.1 30000
+
+When there is a segmentation fault in the child thread, then the entire sever is taken
+down.
+
 */
 
 #include <stdio.h>
@@ -194,12 +202,20 @@ char intro_msg[] = "Internet Knock-Knock Protocol Server\nKnock, knock.\n";
 */
 void protocol(Shared *shared){
   char buf[255];
-  // in child, close main listener socket
+  // in child, close main listener socket, can't do in child thread because
+  // share global variables
   // close(listener_d);
   if (say(shared->connect_d, intro_msg) == -1) {
       close(shared->connect_d);
       exit(0);
   }
+
+  // Cause segmentation fault by accessing null pointer
+  // char * null_ptr = NULL;
+  // if (say(shared->connect_d, null_ptr) == -1) {
+  //     close(shared->connect_d);
+  //     exit(0);
+  // }
 
   read_in(shared->connect_d, buf, sizeof(buf));
   // Check to make sure they said "Who's there?"
@@ -240,8 +256,6 @@ void *entry(void *arg)
 
 int main(int argc, char *argv[])
 {
-    //char buf[255];
-
     // create array of child threads
     int i = 0;
     pthread_t child[NUM_CONNECTIONS];
@@ -267,9 +281,7 @@ int main(int argc, char *argv[])
 
       child[i] = make_thread(entry, shared);
 
-      // QUESTION: how do I join the threads at the end?
-      // join_thread(child);
-      //
+      // QUESTION: how do I join the threads at the end? Don't need to.
       // close(connect_d);
     }
     return 0;

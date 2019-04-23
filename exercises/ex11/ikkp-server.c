@@ -4,6 +4,11 @@ Modified by Allen Downey.
 
 Further edited by Cassandra Overney
 
+gcc ikkp_server.c -o ikkp_server
+
+./ikkp_server
+telnet 127.0.0.1 30000
+
 */
 
 #include <stdio.h>
