@@ -7,7 +7,6 @@ Released under the Bad Advice Inc.
 gcc advice_client.c -o advice_client
 
 ./advice_client
-telnet 127.0.0.1 30000
 
 */
 

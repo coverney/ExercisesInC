@@ -275,6 +275,8 @@ int main(int argc, char *argv[])
     while (1) {
       printf("Waiting for connection on port %d\n", port);
       int connect_d = open_client_socket();
+      // make one more child thread
+      i = i + 1;
 
       // create child thread and run protocol
       Shared *shared = make_shared(connect_d);
