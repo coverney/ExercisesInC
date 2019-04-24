@@ -12,7 +12,8 @@ gcc ikkp_server_fork.c -o ikkp_server_fork
 telnet 127.0.0.1 30000
 
 When there is a segmentation fault in the child process, only the client crashes.
-The server is still up and running.
+The server is still up and running, because processes don't share the same address
+space and global and heap segments of the memory.
 
 */
 

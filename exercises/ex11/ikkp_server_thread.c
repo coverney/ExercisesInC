@@ -11,8 +11,9 @@ gcc ikkp_server_thread.c -o ikkp_server_thread -lpthread
 ./ikkp_server_thread
 telnet 127.0.0.1 30000
 
-When there is a segmentation fault in the child thread, then the entire sever is taken
-down.
+When there is a segmentation fault in the child thread, then the entire sever is
+taken down since threads share the same address space and signififcant parts of
+the memory (heap, global).
 
 */
 
