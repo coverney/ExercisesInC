@@ -8,6 +8,27 @@ http://www.ibm.com/developerworks/linux/tutorials/l-glib/section5.html
 
 Note: this version leaks memory.
 
+Further edited by Cassandra Overney
+
+Run with:
+make word_count
+valgrind --leak-check=yes ./word_count
+
+Results:
+==7796== LEAK SUMMARY:
+==7796==    definitely lost: 0 bytes in 0 blocks
+==7796==    indirectly lost: 0 bytes in 0 blocks
+==7796==      possibly lost: 0 bytes in 0 blocks
+==7796==    still reachable: 18,604 bytes in 6 blocks
+==7796==         suppressed: 0 bytes in 0 blocks
+==7796== Reachable blocks (those to which a pointer was found) are not shown.
+==7796== To see them, rerun with: --leak-check=full --show-leak-kinds=all
+==7796==
+==7796== For counts of detected and suppressed errors, rerun with: -v
+==7796== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+
+The "still reachable" blocks seem to be in the GLib hash table.
+
 */
 
 #include <stdio.h>
@@ -36,6 +57,13 @@ void pair_printor(gpointer value, gpointer user_data)
     printf("%d\t %s\n", pair->freq, pair->word);
 }
 
+/* Iterator that frees pairs. */
+void pair_free(gpointer value, gpointer user_data)
+{
+    Pair *pair = (Pair *) value;
+    free(pair->word);
+    free(pair);
+}
 
 /* Iterator that prints keys and values. */
 void kv_printor (gpointer key, gpointer value, gpointer user_data)
@@ -49,13 +77,23 @@ void accumulator(gpointer key, gpointer value, gpointer user_data)
 {
     GSequence *seq = (GSequence *) user_data;
     Pair *pair = g_new(Pair, 1);
-    pair->word = (gchar *) key;
+    // make a copy of string to separate the hash and seq data structures
+    pair->word = g_strdup((gchar *) key);
     pair->freq = *(gint *) value;
 
     g_sequence_insert_sorted(seq,
         (gpointer) pair,
         (GCompareDataFunc) compare_pair,
         NULL);
+
+}
+
+/* Iterator that frees key-value pairs. */
+void hash_free(gpointer key, gpointer value, gpointer user_data)
+{
+    free(value);
+    free(key);
+
 }
 
 /* Increments the frequency associated with key. */
@@ -64,11 +102,13 @@ void incr(GHashTable* hash, gchar *key)
     gint *val = (gint *) g_hash_table_lookup(hash, key);
 
     if (val == NULL) {
-        gint *val1 = g_new(gint, 1);
-        *val1 = 1;
-        g_hash_table_insert(hash, key, val1);
+      // make copy of key
+      gchar *key1 = g_strdup(key);
+      gint *val1 = g_new(gint, 1);
+      *val1 = 1;
+      g_hash_table_insert(hash, key1, val1);
     } else {
-        *val += 1;
+      *val += 1;
     }
 }
 
@@ -99,11 +139,12 @@ int main(int argc, char** argv)
     while (1) {
         gchar *res = fgets(line, sizeof(line), fp);
         if (res == NULL) break;
-
+        // g_strsplit makes duplicates
         array = g_strsplit(line, " ", 0);
         for (int i=0; array[i] != NULL; i++) {
             incr(hash, array[i]);
         }
+        g_strfreev(array);
     }
     fclose(fp);
 
@@ -117,8 +158,15 @@ int main(int argc, char** argv)
     // iterate the sequence and print the pairs
     g_sequence_foreach(seq, (GFunc) pair_printor, NULL);
 
-    // try (unsuccessfully) to free everything
+    // try to free everything
+    // first free every key-value pair in hash
+    g_hash_table_foreach(hash, (GHFunc) hash_free, (gpointer) seq);
+    // then free the hash table
     g_hash_table_destroy(hash);
+
+    // free every Pair in sequence
+    g_sequence_foreach(seq, (GFunc) pair_free, NULL);
+    // then free the actual sequence
     g_sequence_free(seq);
 
     return 0;

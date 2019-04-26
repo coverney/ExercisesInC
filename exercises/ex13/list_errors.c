@@ -5,6 +5,22 @@ Based on an example from http://www.learn-c.org/en/Linked_lists
 Copyright 2016 Allen Downey
 License: Creative Commons Attribution-ShareAlike 3.0
 
+Further edited by: Cassandra Overney
+
+Run with:
+make list_errors
+valgrind --leak-check=yes ./list_errors
+
+Results:
+==7808== HEAP SUMMARY:
+==7808==     in use at exit: 0 bytes in 0 blocks
+==7808==   total heap usage: 13 allocs, 13 frees, 1,216 bytes allocated
+==7808==
+==7808== All heap blocks were freed -- no leaks are possible
+==7808==
+==7808== For counts of detected and suppressed errors, rerun with: -v
+==7808== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+
 */
 
 #include <stdio.h>
@@ -178,6 +194,14 @@ Node *make_something() {
     return node3;
 }
 
+/* Go through linked list and keep popping until get -1*/
+void free_something(Node ** something){
+  int res = pop(something);
+  while (res != -1){
+    res = pop(something);
+  }
+}
+
 
 int main() {
     // make a list of even numbers
@@ -198,6 +222,10 @@ int main() {
     printf("test_list\n");
     print_list(&test_list);
 
+    // free test_list
+    free_something(&test_list);
+    free(test_list);
+
     // make an empty list
     printf("empty\n");
     Node *empty = NULL;
@@ -206,7 +234,13 @@ int main() {
     insert_by_index(&empty, 1, 0);
     print_list(&empty);
 
+    // free empty
+    free_something(&empty);
+    free(empty);
+
     Node *something = make_something();
+    // free something
+    free_something(&something);
     free(something);
 
     return 0;
