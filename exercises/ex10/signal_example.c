@@ -50,12 +50,35 @@ void times_up(int sig) {
     raise(SIGINT);
 }
 
+void ask_one_more(int sig){
+  // pose the question
+  int a = rand() % 11;
+  int b = rand() % 11;
+  printf("\nWhat is %d times %d? ", a, b);
+  // set (or reset) the alarm
+  // get the answer
+  char txt[4];
+  char *ret = fgets(txt, 4, stdin);
+  int answer = atoi(txt);
+
+  // check the answer
+  if (answer == a * b) {
+      printf("\nRight!\n");
+      score++;
+  } else {
+      printf("\nWrong!\n");
+  }
+  printf("Score: %i\n", score);
+
+  times_up(sig);
+}
+
 int main(void) {
     int a, b, answer;
     char txt[4];
 
     // when the alarm goes off, call times_up
-    catch_signal(SIGALRM, times_up);
+    catch_signal(SIGALRM, ask_one_more);
 
     // if we get interrupted, end the game
     catch_signal(SIGINT, end_game);
